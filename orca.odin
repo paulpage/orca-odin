@@ -578,8 +578,28 @@ foreign {
 // A unicode codepoint.
 utf32 :: rune
 
+// This enum declares the possible return status of UTF8 decoding/encoding operations.
+utf8_status :: enum u32 {
+	// The operation was successful.
+	OC_UTF8_OK = 0,
+	// The operation unexpectedly encountered the end of the utf8 sequence.
+	OC_UTF8_OUT_OF_BOUNDS = 1,
+	// A continuation byte was encountered where a leading byte was expected.
+	OC_UTF8_UNEXPECTED_CONTINUATION_BYTE = 3,
+	// A leading byte was encountered in the middle of the encoding of utf8 codepoint.
+	OC_UTF8_UNEXPECTED_LEADING_BYTE = 4,
+	// The utf8 sequence contains an invalid byte.
+	OC_UTF8_INVALID_BYTE = 5,
+	// The operation encountered an invalid utf8 codepoint.
+	OC_UTF8_INVALID_CODEPOINT = 6,
+	// The utf8 sequence contains an overlong encoding of a utf8 codepoint.
+	OC_UTF8_OVERLONG_ENCODING = 7,
+}
+
 // A type representing the result of decoding of utf8-encoded codepoint.
 utf8_dec :: struct {
+	// The status of the decoding operation. If not `OC_UTF8_OK`, it describes the error that was encountered during decoding.
+	status: utf8_status,
 	// The decoded codepoint.
 	codepoint: utf32,
 	// The size of the utf8 sequence encoding that codepoint.
@@ -1033,7 +1053,7 @@ file_dialog_kind :: enum u32 {
 // File dialog flags.
 file_dialog_flag :: enum u32 {
 	// This dialog allows selecting files.
-	FILES = 1,
+	FILES = 0,
 	// This dialog allows selecting directories.
 	DIRECTORIES,
 	// This dialog allows selecting multiple items.
@@ -1390,181 +1410,333 @@ foreign {
 // A 2D Vector Graphics API.
 ////////////////////////////////////////////////////////////////////////////////
 
+// An opaque handle to a graphics surface.
 surface :: distinct u64
 
+// An opaque handle representing a rendering engine for the canvas API.
 canvas_renderer :: distinct u64
 
+// An opaque handle to a canvas context. Canvas contexts are used to hold contextual state about drawing commands, such as the current color or the current line width, and to record drawing commands. Once commands have been recorded, they can be rendered to a surface using `oc_canvas_render()`.
 canvas_context :: distinct u64
 
+// An opaque font handle.
 font :: distinct u64
 
+// An opaque image handle.
 image :: distinct u64
 
+// This enum describes possible blending modes for color gradient.
 gradient_blend_space :: enum u32 {
+	// The gradient colors are interpolated in linear space.
 	LINEAR = 0,
+	// The gradient colors are interpolated in sRGB space.
 	SRGB = 1,
 }
 
+// An enum identifying possible color spaces.
 color_space :: enum u32 {
+	// A linear RGB color space.
 	RGB = 0,
+	// An sRGB color space.
 	SRGB = 1,
 }
 
+// A struct representing a color.
 color :: struct { using c: [4]f32, colorSpace: color_space }
 
+// Stroke joint types.
 joint_type :: enum u32 {
+	// Miter joint.
 	MITER = 0,
+	// Bevel joint.
 	BEVEL = 1,
+	// Don't join path segments.
 	NONE = 2,
 }
 
+// Cap types.
 cap_type :: enum u32 {
+	// Don't draw caps.
 	NONE = 0,
+	// Square caps.
 	SQUARE = 1,
 }
 
+// A struct describing the metrics of a font.
 font_metrics :: struct {
+	// The ascent from the baseline to the top of the line (a positive value means the top line is above the baseline). 
 	ascent: f32,
+	// The descent from the baseline to the bottom line (a positive value means the bottom line is below the baseline). 
 	descent: f32,
+	// The gap between two lines of text.
 	lineGap: f32,
+	// The height of the lowercase character 'x'.
 	xHeight: f32,
+	// The height of capital letters.
 	capHeight: f32,
+	// The maximum character width.
 	width: f32,
 }
 
+// A struct describing the metrics of a single glyph.
 glyph_metrics :: struct {
 	ink: rect,
+	// The default amount from which to advance the cursor after drawing this glyph.
 	advance: vec2,
 }
 
+// A struct describing the metrics of a run of glyphs.
 text_metrics :: struct {
+	// The bounding box of the inked portion of the text.
 	ink: rect,
+	// The logical bounding box of the text (including ascents, descents, and line gaps).
 	logical: rect,
+	// The amount from which to advance the cursor after drawing the text.
 	advance: vec2,
 }
 
+// An opaque struct representing a rectangle atlas. This is used to allocate rectangular regions of an image to make texture atlases.
 rect_atlas :: struct {}
 
+// A struct describing a rectangular sub-region of an image.
 image_region :: struct {
+	// The image handle.
 	image: image,
+	// The rectangular region of the image.
 	rect: rect,
 }
 
 @(default_calling_convention="c", link_prefix="oc_")
 foreign {
+	// Returns a `nil` surface handle.
 	surface_nil :: proc() -> surface ---
+	// Check if a surface handle is `nil`.
 	surface_is_nil :: proc(surface: surface) -> bool ---
+	// Destroy a graphics surface.
 	surface_destroy :: proc(surface: surface) ---
+	/*
+	Get a surface's size.
+	
+	The size is returned in device-independent "points". To get the size in pixels, multiply the size in points by the scaling factor returned by `oc_surface_contents_scaling()`.
+	*/
 	surface_get_size :: proc(surface: surface) -> vec2 ---
+	// Get the scaling factor of a surface.
 	surface_contents_scaling :: proc(surface: surface) -> vec2 ---
+	// Bring a surface to the foreground, rendering it on top of other surfaces.
 	surface_bring_to_front :: proc(surface: surface) ---
+	// Send a surface to the background, rendering it below other surfaces.
 	surface_send_to_back :: proc(surface: surface) ---
+	// Checks if a surface is hidden.
 	surface_get_hidden :: proc(surface: surface) -> bool ---
+	// Set the hidden status of a surface.
 	surface_set_hidden :: proc(surface: surface, hidden: bool) ---
+	// Create a color using RGBA values.
 	color_rgba :: proc(r: f32, g: f32, b: f32, a: f32) -> color ---
+	// Create a current color using sRGBA values.
 	color_srgba :: proc(r: f32, g: f32, b: f32, a: f32) -> color ---
+	// Convert a color from one color space to another.
 	color_convert :: proc(_color: color, colorSpace: color_space) -> color ---
+	// Returns a `nil` canvas renderer handle.
 	canvas_renderer_nil :: proc() -> canvas_renderer ---
+	// Checks if a canvas renderer handle is `nil`.
 	canvas_renderer_is_nil :: proc(renderer: canvas_renderer) -> bool ---
+	// Create a canvas renderer.
 	canvas_renderer_create :: proc() -> canvas_renderer ---
+	// Destroy a canvas renderer.
 	canvas_renderer_destroy :: proc(renderer: canvas_renderer) ---
+	// Render canvas commands onto a surface.
 	canvas_render :: proc(renderer: canvas_renderer, _context: canvas_context, surface: surface) ---
+	// Present a canvas surface to the display.
 	canvas_present :: proc(renderer: canvas_renderer, surface: surface) ---
+	// Create a surface for rendering vector graphics.
 	canvas_surface_create :: proc(renderer: canvas_renderer) -> surface ---
-	canvas_surface_swap_interval :: proc(surface: surface, swap: i32) ---
+	// Returns a `nil` canvas context handle.
 	canvas_context_nil :: proc() -> canvas_context ---
+	// Checks if a canvas context handle is `nil`.
 	canvas_context_is_nil :: proc(_context: canvas_context) -> bool ---
+	// Create a canvas context.
 	canvas_context_create :: proc() -> canvas_context ---
+	// Destroy a canvas context
 	canvas_context_destroy :: proc(_context: canvas_context) ---
+	// Make a canvas context current in the calling thread. Subsequent canvas commands will refer to this context until another context is made current.
 	canvas_context_select :: proc(_context: canvas_context) -> canvas_context ---
+	// Set the multisample anti-aliasing sample count for the commands of a context.
 	canvas_context_set_msaa_sample_count :: proc(_context: canvas_context, sampleCount: u32) ---
+	// Return a `nil` font handle.
 	font_nil :: proc() -> font ---
+	// Check if a font handle is `nil`.
 	font_is_nil :: proc(font: font) -> bool ---
+	// Create a font from in-memory TrueType data.
 	font_create_from_memory :: proc(mem: str8, rangeCount: u32, ranges: ^unicode_range) -> font ---
+	// Create a font from a TrueType font file.
 	font_create_from_file :: proc(file: file, rangeCount: u32, ranges: ^unicode_range) -> font ---
+	// Create a font from a TrueType font file path.
 	font_create_from_path :: proc(path: str8, rangeCount: u32, ranges: ^unicode_range) -> font ---
+	// Destroy a font.
 	font_destroy :: proc(font: font) ---
+	// Get the glyph indices of a run of unicode code points in a given font.
 	font_get_glyph_indices :: proc(font: font, codePoints: str32, backing: str32) -> str32 ---
+	// Get the glyph indices of a run of unicode code points in a given font and push them on an arena.
 	font_push_glyph_indices :: proc(arena: ^arena, font: font, codePoints: str32) -> str32 ---
+	// Get the glyp index of a single codepoint in a given font.
 	font_get_glyph_index :: proc(font: font, codePoint: utf32) -> u32 ---
+	// Get a font's metrics for a given font size.
 	font_get_metrics :: proc(font: font, emSize: f32) -> font_metrics ---
+	// Get a font's unscaled metrics.
 	font_get_metrics_unscaled :: proc(font: font) -> font_metrics ---
+	// Get a scale factor to apply to unscaled font metrics to obtain a given 'm' size.
 	font_get_scale_for_em_pixels :: proc(font: font, emSize: f32) -> f32 ---
+	// Get text metrics for a run of unicode code points.
 	font_text_metrics_utf32 :: proc(font: font, fontSize: f32, codepoints: str32) -> text_metrics ---
+	// Get the text metrics for a utf8 string.
 	font_text_metrics :: proc(font: font, fontSize: f32, text: str8) -> text_metrics ---
+	// Returns a `nil` image handle.
 	image_nil :: proc() -> image ---
+	// Check if an image handle is `nil`.
 	image_is_nil :: proc(a: image) -> bool ---
+	// Create an uninitialized image.
 	image_create :: proc(renderer: canvas_renderer, width: u32, height: u32) -> image ---
+	// Create an image from an array of 8 bit per channel rgba values.
 	image_create_from_rgba8 :: proc(renderer: canvas_renderer, width: u32, height: u32, pixels: [^]u8) -> image ---
+	// Create an image from in-memory png, jpeg or bmp data.
 	image_create_from_memory :: proc(renderer: canvas_renderer, mem: str8, flip: bool) -> image ---
+	// Create an image from an image file. Supported formats are: png, jpeg or bmp.
 	image_create_from_file :: proc(renderer: canvas_renderer, file: file, flip: bool) -> image ---
+	// Create an image from an image file path. Supported formats are: png, jpeg or bmp.
 	image_create_from_path :: proc(renderer: canvas_renderer, path: str8, flip: bool) -> image ---
+	// Destroy an image.
 	image_destroy :: proc(image: image) ---
+	// Upload pixels to an image.
 	image_upload_region_rgba8 :: proc(image: image, region: rect, pixels: [^]u8) ---
+	// Get the size of an image.
 	image_size :: proc(image: image) -> vec2 ---
+	// Create a rectangle atlas.
 	rect_atlas_create :: proc(arena: ^arena, width: i32, height: i32) -> ^rect_atlas ---
+	// Allocate a rectangular region from an atlas.
 	rect_atlas_alloc :: proc(atlas: ^rect_atlas, width: i32, height: i32) -> rect ---
+	// Recycle a rectangular region that was previously allocated from an atlas.
 	rect_atlas_recycle :: proc(atlas: ^rect_atlas, rect: rect) ---
+	// Allocate an image region from an atlas and upload pixels to that region.
 	image_atlas_alloc_from_rgba8 :: proc(atlas: ^rect_atlas, backingImage: image, width: u32, height: u32, pixels: [^]u8) -> image_region ---
+	// Allocate an image region from an atlas and upload an image to it.
 	image_atlas_alloc_from_memory :: proc(atlas: ^rect_atlas, backingImage: image, mem: str8, flip: bool) -> image_region ---
+	// Allocate an image region from an atlas and upload an image to it.
 	image_atlas_alloc_from_file :: proc(atlas: ^rect_atlas, backingImage: image, file: file, flip: bool) -> image_region ---
+	// Allocate an image region from an atlas and upload an image to it.
 	image_atlas_alloc_from_path :: proc(atlas: ^rect_atlas, backingImage: image, path: str8, flip: bool) -> image_region ---
+	// Recycle an image region allocated from an atlas.
 	image_atlas_recycle :: proc(atlas: ^rect_atlas, imageRgn: image_region) ---
+	// Push a matrix on the transform stack.
 	matrix_push :: proc(_matrix: mat2x3) ---
+	// Multiply a matrix with the top of the transform stack, and push the result on the top of the stack.
 	matrix_multiply_push :: proc(_matrix: mat2x3) ---
+	// Pop a matrix from the transform stack.
 	matrix_pop :: proc() ---
+	// Get the top matrix of the transform stack.
 	matrix_top :: proc() -> mat2x3 ---
+	// Push a clip rectangle to the clip stack.
 	clip_push :: proc(x: f32, y: f32, w: f32, h: f32) ---
+	// Pop from the clip stack.
 	clip_pop :: proc() ---
+	// Get the clip rectangle from the top of the clip stack.
 	clip_top :: proc() -> rect ---
+	// Set the current color.
 	set_color :: proc(_color: color) ---
+	// Set the current color using linear RGBA values.
 	set_color_rgba :: proc(r: f32, g: f32, b: f32, a: f32) ---
+	// Set the current color using sRGBA values.
 	set_color_srgba :: proc(r: f32, g: f32, b: f32, a: f32) ---
+	// Set the current color gradient.
 	set_gradient :: proc(blendSpace: gradient_blend_space, bottomLeft: color, bottomRight: color, topRight: color, topLeft: color) ---
+	// Set the current line width.
 	set_width :: proc(width: f32) ---
+	// Set the current tolerance for the line width. Bigger values increase performance but allow more inconsistent stroke widths along a path.
 	set_tolerance :: proc(tolerance: f32) ---
+	// Set the current joint style.
 	set_joint :: proc(joint: joint_type) ---
+	// Set the maximum joint excursion. If a joint would extend past this threshold, the renderer falls back to a bevel joint.
 	set_max_joint_excursion :: proc(maxJointExcursion: f32) ---
+	// Set the current cap style.
 	set_cap :: proc(cap: cap_type) ---
+	// The the current font.
 	set_font :: proc(font: font) ---
+	// Set the current font size.
 	set_font_size :: proc(size: f32) ---
+	// Set the current text flip value. `true` flips the y-axis of text rendering commands.
 	set_text_flip :: proc(flip: bool) ---
+	// Set the current source image.
 	set_image :: proc(image: image) ---
+	// Set the current source image region.
 	set_image_source_region :: proc(region: rect) ---
+	// Get the current color
 	get_color :: proc() -> color ---
+	// Get the current line width.
 	get_width :: proc() -> f32 ---
+	// Get the current line width tolerance.
 	get_tolerance :: proc() -> f32 ---
+	// Get the current joint style.
 	get_joint :: proc() -> joint_type ---
+	// Get the current max joint excursion.
 	get_max_joint_excursion :: proc() -> f32 ---
+	// Get the current cap style.
 	get_cap :: proc() -> cap_type ---
+	// Get the current font.
 	get_font :: proc() -> font ---
+	// Get the current font size.
 	get_font_size :: proc() -> f32 ---
+	// Get the current text flip value.
 	get_text_flip :: proc() -> bool ---
+	// Get the current source image.
 	get_image :: proc() -> image ---
+	// Get the current image source region.
 	get_image_source_region :: proc() -> rect ---
+	// Get the current cursor position.
 	get_position :: proc() -> vec2 ---
+	// Move the cursor to a given position.
 	move_to :: proc(x: f32, y: f32) ---
+	// Add a line to the path from the current position to a new one.
 	line_to :: proc(x: f32, y: f32) ---
+	// Add a quadratic Bézier curve to the path from the current position to a new one.
 	quadratic_to :: proc(x1: f32, y1: f32, x2: f32, y2: f32) ---
+	// Add a cubic Bézier curve to the path from the current position to a new one.
 	cubic_to :: proc(x1: f32, y1: f32, x2: f32, y2: f32, x3: f32, y3: f32) ---
+	// Close the current path with a line.
 	close_path :: proc() ---
+	// Add the outlines of a glyph run to the path, using glyph indices.
 	glyph_outlines :: proc(glyphIndices: str32) -> rect ---
+	// Add the outlines of a glyph run to the path, using unicode codepoints.
 	codepoints_outlines :: proc(string: str32) ---
+	// Add the outlines of a glyph run to the path, using a utf8 string.
 	text_outlines :: proc(string: str8) ---
+	// Clear the canvas to the current color.
 	clear :: proc() ---
+	// Fill the current path.
 	fill :: proc() ---
+	// Stroke the current path.
 	stroke :: proc() ---
+	// Draw a filled rectangle.
 	rectangle_fill :: proc(x: f32, y: f32, w: f32, h: f32) ---
+	// Draw a stroked rectangle.
 	rectangle_stroke :: proc(x: f32, y: f32, w: f32, h: f32) ---
+	// Draw a filled rounded rectangle.
 	rounded_rectangle_fill :: proc(x: f32, y: f32, w: f32, h: f32, r: f32) ---
+	// Draw a stroked rounded rectangle.
 	rounded_rectangle_stroke :: proc(x: f32, y: f32, w: f32, h: f32, r: f32) ---
+	// Draw a filled ellipse.
 	ellipse_fill :: proc(x: f32, y: f32, rx: f32, ry: f32) ---
+	// Draw a stroked ellipse.
 	ellipse_stroke :: proc(x: f32, y: f32, rx: f32, ry: f32) ---
+	// Draw a filled circle.
 	circle_fill :: proc(x: f32, y: f32, r: f32) ---
+	// Draw a stroked circle.
 	circle_stroke :: proc(x: f32, y: f32, r: f32) ---
+	// Add an arc to the path.
 	arc :: proc(x: f32, y: f32, r: f32, arcAngle: f32, startAngle: f32) ---
+	// Draw a text line.
 	text_fill :: proc(x: f32, y: f32, text: str8) ---
+	// Draw an image.
 	image_draw :: proc(image: image, rect: rect) ---
+	// Draw a sub-region of an image.
 	image_draw_region :: proc(image: image, srcRegion: rect, dstRegion: rect) ---
 }
 
@@ -1574,9 +1746,11 @@ foreign {
 
 @(default_calling_convention="c", link_prefix="oc_")
 foreign {
+	// Create a graphics surface for GLES rendering.
 	gles_surface_create :: proc() -> surface ---
+	// Make the GL context of the surface current.
 	gles_surface_make_current :: proc(surface: surface) ---
-	gles_surface_swap_interval :: proc(surface: surface, interval: i32) ---
+	// Swap the buffers of a GLES surface.
 	gles_surface_swap_buffers :: proc(surface: surface) ---
 }
 

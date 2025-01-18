@@ -266,7 +266,7 @@ def check_enum_name_decimal(name):
 # [2] = bit_set sizing (can't rely on the enum size)
 enum_bit_sets_list = {
     "keymod_flags": ["keymod_flag", "keymod_flags", "u32", 0],
-    "file_dialog_flags": ["file_dialog_flag", "file_dialog_flags", "u32", 1],
+    "file_dialog_flags": ["file_dialog_flag", "file_dialog_flags", "u32", 0],
     "file_open_flags_enum": ["file_open_flag", "file_open_flags", "u16", 1],
     "file_access_enum": ["file_access_flag", "file_access", "u16", 1],
     "file_perm_enum": ["file_perm_flag", "file_perm", "u16", 1],
