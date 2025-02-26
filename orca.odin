@@ -14,15 +14,6 @@ pool :: struct {
 	blockSize: u64,
 }
 
-@(link_prefix="OC_")
-foreign {
-	UI_DARK_THEME: ui_theme
-	UI_LIGHT_THEME: ui_theme
-
-	UI_DARK_PALETTE: ui_palette
-	UI_LIGHT_PALETTE: ui_palette
-}
-
 
 SYS_MAX_ERROR :: 1024
 
@@ -1812,463 +1803,6 @@ input_state :: struct {
 	clipboard: clipboard_state,
 }
 
-ui_key :: struct {
-	hash: u64,
-}
-
-ui_axis :: enum u32 {
-	X = 0,
-	Y = 1,
-	COUNT = 2,
-}
-
-ui_align :: enum u32 {
-	START = 0,
-	END = 1,
-	CENTER = 2,
-}
-
-ui_layout_align :: [2]ui_align
-
-ui_layout :: struct {
-	axis: ui_axis,
-	spacing: f32,
-	margin: [2]f32,
-	align: ui_layout_align,
-}
-
-ui_size_kind :: enum u32 {
-	TEXT = 0,
-	PIXELS = 1,
-	CHILDREN = 2,
-	PARENT = 3,
-	PARENT_MINUS_PIXELS = 4,
-}
-
-ui_size :: struct {
-	kind: ui_size_kind,
-	value: f32,
-	relax: f32,
-	minSize: f32,
-}
-
-ui_box_size :: [2]ui_size
-
-ui_box_floating :: [2]bool
-
-ui_style :: struct {
-	size: ui_box_size,
-	layout: ui_layout,
-	floating: ui_box_floating,
-	floatTarget: vec2,
-	_color: color,
-	bgColor: color,
-	borderColor: color,
-	font: font,
-	fontSize: f32,
-	borderSize: f32,
-	roundness: f32,
-	animationTime: f32,
-	animationMask: ui_style_mask,
-}
-
-ui_palette :: struct {
-	red0: color,
-	red1: color,
-	red2: color,
-	red3: color,
-	red4: color,
-	red5: color,
-	red6: color,
-	red7: color,
-	red8: color,
-	red9: color,
-	orange0: color,
-	orange1: color,
-	orange2: color,
-	orange3: color,
-	orange4: color,
-	orange5: color,
-	orange6: color,
-	orange7: color,
-	orange8: color,
-	orange9: color,
-	amber0: color,
-	amber1: color,
-	amber2: color,
-	amber3: color,
-	amber4: color,
-	amber5: color,
-	amber6: color,
-	amber7: color,
-	amber8: color,
-	amber9: color,
-	yellow0: color,
-	yellow1: color,
-	yellow2: color,
-	yellow3: color,
-	yellow4: color,
-	yellow5: color,
-	yellow6: color,
-	yellow7: color,
-	yellow8: color,
-	yellow9: color,
-	lime0: color,
-	lime1: color,
-	lime2: color,
-	lime3: color,
-	lime4: color,
-	lime5: color,
-	lime6: color,
-	lime7: color,
-	lime8: color,
-	lime9: color,
-	lightGreen0: color,
-	lightGreen1: color,
-	lightGreen2: color,
-	lightGreen3: color,
-	lightGreen4: color,
-	lightGreen5: color,
-	lightGreen6: color,
-	lightGreen7: color,
-	lightGreen8: color,
-	lightGreen9: color,
-	green0: color,
-	green1: color,
-	green2: color,
-	green3: color,
-	green4: color,
-	green5: color,
-	green6: color,
-	green7: color,
-	green8: color,
-	green9: color,
-	teal0: color,
-	teal1: color,
-	teal2: color,
-	teal3: color,
-	teal4: color,
-	teal5: color,
-	teal6: color,
-	teal7: color,
-	teal8: color,
-	teal9: color,
-	cyan0: color,
-	cyan1: color,
-	cyan2: color,
-	cyan3: color,
-	cyan4: color,
-	cyan5: color,
-	cyan6: color,
-	cyan7: color,
-	cyan8: color,
-	cyan9: color,
-	lightBlue0: color,
-	lightBlue1: color,
-	lightBlue2: color,
-	lightBlue3: color,
-	lightBlue4: color,
-	lightBlue5: color,
-	lightBlue6: color,
-	lightBlue7: color,
-	lightBlue8: color,
-	lightBlue9: color,
-	blue0: color,
-	blue1: color,
-	blue2: color,
-	blue3: color,
-	blue4: color,
-	blue5: color,
-	blue6: color,
-	blue7: color,
-	blue8: color,
-	blue9: color,
-	indigo0: color,
-	indigo1: color,
-	indigo2: color,
-	indigo3: color,
-	indigo4: color,
-	indigo5: color,
-	indigo6: color,
-	indigo7: color,
-	indigo8: color,
-	indigo9: color,
-	violet0: color,
-	violet1: color,
-	violet2: color,
-	violet3: color,
-	violet4: color,
-	violet5: color,
-	violet6: color,
-	violet7: color,
-	violet8: color,
-	violet9: color,
-	purple0: color,
-	purple1: color,
-	purple2: color,
-	purple3: color,
-	purple4: color,
-	purple5: color,
-	purple6: color,
-	purple7: color,
-	purple8: color,
-	purple9: color,
-	pink0: color,
-	pink1: color,
-	pink2: color,
-	pink3: color,
-	pink4: color,
-	pink5: color,
-	pink6: color,
-	pink7: color,
-	pink8: color,
-	pink9: color,
-	grey0: color,
-	grey1: color,
-	grey2: color,
-	grey3: color,
-	grey4: color,
-	grey5: color,
-	grey6: color,
-	grey7: color,
-	grey8: color,
-	grey9: color,
-	black: color,
-	white: color,
-}
-
-ui_theme :: struct {
-	white: color,
-	primary: color,
-	primaryHover: color,
-	primaryActive: color,
-	border: color,
-	fill0: color,
-	fill1: color,
-	fill2: color,
-	bg0: color,
-	bg1: color,
-	bg2: color,
-	bg3: color,
-	bg4: color,
-	text0: color,
-	text1: color,
-	text2: color,
-	text3: color,
-	sliderThumbBorder: color,
-	elevatedBorder: color,
-	roundnessSmall: f32,
-	roundnessMedium: f32,
-	roundnessLarge: f32,
-	palette: ^ui_palette,
-}
-
-ui_tag :: struct {
-	hash: u64,
-}
-
-ui_selector_kind :: enum u32 {
-	ANY = 0,
-	OWNER = 1,
-	TEXT = 2,
-	TAG = 3,
-	STATUS = 4,
-	KEY = 5,
-}
-
-ui_status_flag :: enum u8 {
-	HOVER = 1,
-	HOT,
-	ACTIVE,
-	DRAGGING,
-}
-ui_status :: bit_set[ui_status_flag; u8]
-
-ui_selector_op :: enum u32 {
-	DESCENDANT = 0,
-	AND = 1,
-}
-
-ui_selector :: struct {
-	listElt: list_elt,
-	kind: ui_selector_kind,
-	op: ui_selector_op,
-	using _: struct #raw_union {
-		text: str8,
-		key: ui_key,
-		tag: ui_tag,
-		status: ui_status,
-	},
-}
-
-ui_pattern :: struct {
-	l: list,
-}
-
-ui_box :: struct {
-	listElt: list_elt,
-	children: list,
-	parent: ^ui_box,
-	overlayElt: list_elt,
-	bucketElt: list_elt,
-	key: ui_key,
-	frameCounter: u64,
-	flags: ui_flags,
-	string: str8,
-	tags: list,
-	drawProc: ui_box_draw_proc,
-	drawData: rawptr,
-	beforeRules: list,
-	afterRules: list,
-	targetStyle: ^ui_style,
-	style: ui_style,
-	z: u32,
-	floatPos: vec2,
-	childrenSum: [2]f32,
-	spacing: [2]f32,
-	minSize: [2]f32,
-	rect: rect,
-	sig: ^ui_sig,
-	fresh: bool,
-	closed: bool,
-	parentClosed: bool,
-	dragging: bool,
-	hot: bool,
-	active: bool,
-	scroll: vec2,
-	pressedMouse: vec2,
-	hotTransition: f32,
-	activeTransition: f32,
-}
-
-ui_style_rule :: struct {
-	boxElt: list_elt,
-	buildElt: list_elt,
-	tmpElt: list_elt,
-	owner: ^ui_box,
-	pattern: ui_pattern,
-	mask: ui_style_mask,
-	style: ^ui_style,
-}
-
-ui_sig :: struct {
-	box: ^ui_box,
-	mouse: vec2,
-	delta: vec2,
-	wheel: vec2,
-	pressed: bool,
-	released: bool,
-	clicked: bool,
-	doubleClicked: bool,
-	tripleClicked: bool,
-	rightPressed: bool,
-	dragging: bool,
-	hovering: bool,
-	pasted: bool,
-}
-
-ui_box_draw_proc :: proc "c" (arg0: ^ui_box, arg1: rawptr)
-
-ui_flag :: enum u32 {
-	CLICKABLE = 0,
-	SCROLL_WHEEL_X,
-	SCROLL_WHEEL_Y,
-	BLOCK_MOUSE,
-	HOT_ANIMATION,
-	ACTIVE_ANIMATION,
-	OVERFLOW_ALLOW_X,
-	OVERFLOW_ALLOW_Y,
-	CLIP,
-	DRAW_BACKGROUND,
-	DRAW_FOREGROUND,
-	DRAW_BORDER,
-	DRAW_TEXT,
-	DRAW_PROC,
-	OVERLAY,
-}
-ui_flags :: bit_set[ui_flag; u32]
-
-MAX_INPUT_CHAR_PER_FRAME :: 64
-
-ui_input_text :: struct {
-	count: u8 `fmt:"-"`,
-	codePoints: [64]utf32 `fmt:"s,count"`,
-}
-
-ui_stack_elt :: struct {
-	parent: ^ui_stack_elt,
-	using _: struct #raw_union {
-		box: ^ui_box,
-		size: ui_size,
-		clip: rect,
-	},
-}
-
-ui_tag_elt :: struct {
-	listElt: list_elt,
-	tag: ui_tag,
-}
-
-BOX_MAP_BUCKET_COUNT :: 1024
-
-ui_edit_move :: enum u32 {
-	NONE = 0,
-	CHAR = 1,
-	WORD = 2,
-	LINE = 3,
-}
-
-ui_context :: struct {
-	init: bool,
-	input: input_state,
-	frameCounter: u64,
-	frameTime: f64,
-	lastFrameDuration: f64,
-	frameArena: arena,
-	boxPool: pool,
-	boxMap: [1024]list,
-	root: ^ui_box,
-	overlay: ^ui_box,
-	overlayList: list,
-	boxStack: ^ui_stack_elt,
-	clipStack: ^ui_stack_elt,
-	nextBoxBeforeRules: list,
-	nextBoxAfterRules: list,
-	nextBoxTags: list,
-	z: u32,
-	hovered: ^ui_box,
-	focus: ^ui_box,
-	editCursor: i32,
-	editMark: i32,
-	editFirstDisplayedChar: i32,
-	editCursorBlinkStart: f64,
-	editSelectionMode: ui_edit_move,
-	editWordSelectionInitialCursor: i32,
-	editWordSelectionInitialMark: i32,
-	theme: ^ui_theme,
-}
-
-ui_text_box_result :: struct {
-	changed: bool,
-	accepted: bool,
-	text: str8,
-}
-
-ui_select_popup_info :: struct {
-	changed: bool,
-	selectedIndex: i32,
-	optionCount: i32 `fmt:"-"`,
-	options: [^]str8 `fmt:"s,optionCount"`,
-	placeholder: str8,
-}
-
-ui_radio_group_info :: struct {
-	changed: bool,
-	selectedIndex: i32,
-	optionCount: i32 `fmt:"-"`,
-	options: [^]str8 `fmt:"s,optionCount"`,
-}
-
 @(default_calling_convention="c", link_prefix="oc_")
 foreign {
 	input_process_event :: proc(arena: ^arena, state: ^input_state, event: ^event) ---
@@ -2294,59 +1828,362 @@ foreign {
 	clipboard_pasted :: proc(state: ^input_state) -> bool ---
 	clipboard_pasted_text :: proc(state: ^input_state) -> str8 ---
 	key_mods :: proc(state: ^input_state) -> keymod_flags ---
-	ui_init :: proc(_context: ^ui_context) ---
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Graphical User Interface Core API.
+////////////////////////////////////////////////////////////////////////////////
+
+ui_axis :: enum u32 {
+	X = 0,
+	Y = 1,
+	COUNT = 2,
+}
+
+ui_align :: enum u32 {
+	START = 0,
+	END = 1,
+	CENTER = 2,
+}
+
+ui_size_kind :: enum u32 {
+	CHILDREN = 0,
+	TEXT = 1,
+	PIXELS = 2,
+	PARENT = 3,
+	PARENT_MINUS_PIXELS = 4,
+}
+
+ui_size :: struct {
+	kind: ui_size_kind,
+	value: f32,
+	relax: f32,
+	minSize: f32,
+}
+
+ui_overflow :: enum u32 {
+	OVERFLOW_CLIP = 0,
+	OVERFLOW_ALLOW = 1,
+	OVERFLOW_SCROLL = 2,
+}
+
+ui_attribute :: enum u32 {
+	WIDTH = 0,
+	HEIGHT = 1,
+	AXIS = 2,
+	MARGIN_X = 3,
+	MARGIN_Y = 4,
+	SPACING = 5,
+	X = 6,
+	Y = 7,
+	FLOATING_X = 8,
+	FLOATING_Y = 9,
+	FLOAT_TARGET_X = 10,
+	FLOAT_TARGET_Y = 11,
+	OVERFLOW_X = 12,
+	OVERFLOW_Y = 13,
+	CONSTRAIN_X = 14,
+	CONSTRAIN_Y = 15,
+	COLOR = 16,
+	BG_COLOR = 17,
+	BORDER_COLOR = 18,
+	FONT = 19,
+	TEXT_SIZE = 20,
+	BORDER_SIZE = 21,
+	ROUNDNESS = 22,
+	DRAW_MASK = 23,
+	ANIMATION_TIME = 24,
+	ANIMATION_MASK = 25,
+	CLICK_THROUGH = 26,
+	ATTRIBUTE_COUNT = 27,
+}
+
+ui_attribute_mask :: enum u32 {
+	MASK_NONE = 0,
+	MASK_SIZE_WIDTH = 1,
+	MASK_SIZE_HEIGHT = 2,
+	MASK_LAYOUT_AXIS = 4,
+	MASK_LAYOUT_ALIGN_X = 64,
+	MASK_LAYOUT_ALIGN_Y = 128,
+	MASK_LAYOUT_SPACING = 32,
+	MASK_LAYOUT_MARGIN_X = 8,
+	MASK_LAYOUT_MARGIN_Y = 16,
+	MASK_FLOATING_X = 256,
+	MASK_FLOATING_Y = 512,
+	MASK_FLOAT_TARGET_X = 1024,
+	MASK_FLOAT_TARGET_Y = 2048,
+	MASK_OVERFLOW_X = 4096,
+	MASK_OVERFLOW_Y = 8192,
+	MASK_CONSTRAIN_X = 16384,
+	MASK_CONSTRAIN_Y = 32768,
+	MASK_COLOR = 65536,
+	MASK_BG_COLOR = 131072,
+	MASK_BORDER_COLOR = 262144,
+	MASK_BORDER_SIZE = 2097152,
+	MASK_ROUNDNESS = 4194304,
+	MASK_FONT = 524288,
+	MASK_FONT_SIZE = 1048576,
+	MASK_DRAW_MASK = 8388608,
+	MASK_ANIMATION_TIME = 16777216,
+	MASK_ANIMATION_MASK = 33554432,
+	MASK_CLICK_THROUGH = 67108864,
+}
+
+ui_layout_align :: [2]ui_align
+
+ui_layout :: struct {
+	axis: ui_axis,
+	spacing: f32,
+	margin: [2]f32,
+	align: ui_layout_align,
+}
+
+ui_box_size :: [2]ui_size
+
+ui_box_floating :: [2]bool
+
+ui_draw_mask :: enum u32 {
+	DRAW_MASK_BACKGROUND = 1,
+	DRAW_MASK_BORDER = 2,
+	DRAW_MASK_TEXT = 4,
+	DRAW_MASK_PROC = 8,
+}
+
+ui_style :: struct {
+	size: ui_box_size,
+	layout: ui_layout,
+	floating: ui_box_floating,
+	floatTarget: vec2,
+	_color: color,
+	bgColor: color,
+	borderColor: color,
+	font: font,
+	fontSize: f32,
+	borderSize: f32,
+	roundness: f32,
+	drawMask: u32,
+	animationTime: f32,
+	animationMask: ui_attribute_mask,
+	clickThrough: bool,
+}
+
+ui_context :: struct {}
+
+ui_sig :: struct {
+	box: ^ui_box,
+	mouse: vec2,
+	delta: vec2,
+	wheel: vec2,
+	lastPressedMouse: vec2,
+	pressed: bool,
+	released: bool,
+	clicked: bool,
+	doubleClicked: bool,
+	tripleClicked: bool,
+	rightPressed: bool,
+	closed: bool,
+	active: bool,
+	hover: bool,
+	focus: bool,
+	pasted: bool,
+}
+
+ui_box_draw_proc :: proc "c" (arg0: ^ui_box, arg1: rawptr)
+
+ui_key :: struct {
+	hash: u64,
+}
+
+ui_box :: struct {
+	listElt: list_elt,
+	children: list,
+	parent: ^ui_box,
+	overlayElt: list_elt,
+	overlay: bool,
+	bucketElt: list_elt,
+	key: ui_key,
+	frameCounter: u64,
+	keyString: str8,
+	text: str8,
+	tags: list,
+	drawProc: ui_box_draw_proc,
+	drawData: rawptr,
+	rules: list,
+	targetStyle: ^ui_style,
+	style: ui_style,
+	z: u32,
+	floatPos: vec2,
+	childrenSum: [2]f32,
+	spacing: [2]f32,
+	minSize: [2]f32,
+	rect: rect,
+	styleVariables: list,
+	sig: ui_sig,
+	fresh: bool,
+	closed: bool,
+	parentClosed: bool,
+	dragging: bool,
+	hot: bool,
+	active: bool,
+	scroll: vec2,
+	pressedMouse: vec2,
+	hotTransition: f32,
+	activeTransition: f32,
+}
+
+@(default_calling_convention="c", link_prefix="oc_")
+foreign {
+	ui_context_create :: proc(defaultFont: font) -> ^ui_context ---
+	ui_context_destroy :: proc(_context: ^ui_context) ---
 	ui_get_context :: proc() -> ^ui_context ---
 	ui_set_context :: proc(_context: ^ui_context) ---
 	ui_process_event :: proc(event: ^event) ---
-	ui_begin_frame :: proc(size: vec2, #by_ptr defaultStyle: ui_style, mask: ui_style_mask) ---
-	ui_end_frame :: proc() ---
+	ui_frame_begin :: proc(size: vec2) ---
+	ui_frame_end :: proc() ---
 	ui_draw :: proc() ---
-	ui_set_theme :: proc(theme: ^ui_theme) ---
-	ui_key_make_str8 :: proc(string: str8) -> ui_key ---
-	ui_key_make_path :: proc(path: str8_list) -> ui_key ---
-	ui_box_make_str8 :: proc(string: str8, flags: ui_flags) -> ^ui_box ---
-	ui_box_begin_str8 :: proc(string: str8, flags: ui_flags) -> ^ui_box ---
+	ui_input :: proc() -> ^input_state ---
+	ui_frame_arena :: proc() -> ^arena ---
+	ui_frame_time :: proc() -> f64 ---
+	ui_box_begin_str8 :: proc(string: str8) -> ^ui_box ---
 	ui_box_end :: proc() -> ^ui_box ---
-	ui_box_push :: proc(box: ^ui_box) ---
-	ui_box_pop :: proc() ---
-	ui_box_top :: proc() -> ^ui_box ---
-	ui_box_lookup_key :: proc(key: ui_key) -> ^ui_box ---
-	ui_box_lookup_str8 :: proc(string: str8) -> ^ui_box ---
 	ui_box_set_draw_proc :: proc(box: ^ui_box, _proc: ui_box_draw_proc, data: rawptr) ---
-	ui_box_closed :: proc(box: ^ui_box) -> bool ---
+	ui_box_set_text :: proc(box: ^ui_box, text: str8) ---
+	ui_box_set_overlay :: proc(box: ^ui_box, overlay: bool) ---
 	ui_box_set_closed :: proc(box: ^ui_box, closed: bool) ---
-	ui_box_active :: proc(box: ^ui_box) -> bool ---
-	ui_box_activate :: proc(box: ^ui_box) ---
-	ui_box_deactivate :: proc(box: ^ui_box) ---
-	ui_box_hot :: proc(box: ^ui_box) -> bool ---
-	ui_box_set_hot :: proc(box: ^ui_box, hot: bool) ---
-	ui_box_sig :: proc(box: ^ui_box) -> ui_sig ---
-	ui_tag_make_str8 :: proc(string: str8) -> ui_tag ---
-	ui_tag_box_str8 :: proc(box: ^ui_box, string: str8) ---
+	ui_box_user_data_get :: proc(box: ^ui_box) -> cstring ---
+	ui_box_user_data_push :: proc(box: ^ui_box, size: u64) -> cstring ---
+	ui_box_request_focus :: proc(box: ^ui_box) ---
+	ui_box_release_focus :: proc(box: ^ui_box) ---
+	ui_box_get_sig :: proc(box: ^ui_box) -> ui_sig ---
+	ui_set_draw_proc :: proc(_proc: ui_box_draw_proc, data: rawptr) ---
+	ui_set_text :: proc(text: str8) ---
+	ui_set_overlay :: proc(overlay: bool) ---
+	ui_set_closed :: proc(closed: bool) ---
+	ui_user_data_get :: proc() -> cstring ---
+	ui_user_data_push :: proc(size: u64) -> cstring ---
+	ui_request_focus :: proc() ---
+	ui_release_focus :: proc() ---
+	ui_get_sig :: proc() -> ui_sig ---
+	ui_box_tag_str8 :: proc(box: ^ui_box, string: str8) ---
+	ui_tag_str8 :: proc(string: str8) ---
 	ui_tag_next_str8 :: proc(string: str8) ---
-	ui_apply_style_with_mask :: proc(dst: ^ui_style, src: ^ui_style, mask: ui_style_mask) ---
-	ui_pattern_push :: proc(arena: ^arena, pattern: ^ui_pattern, selector: ui_selector) ---
-	ui_pattern_all :: proc() -> ui_pattern ---
-	ui_pattern_owner :: proc() -> ui_pattern ---
-	ui_style_next :: proc(#by_ptr style: ui_style, mask: ui_style_mask) ---
-	ui_style_match_before :: proc(pattern: ui_pattern, #by_ptr style: ui_style, mask: ui_style_mask) ---
-	ui_style_match_after :: proc(pattern: ui_pattern, #by_ptr style: ui_style, mask: ui_style_mask) ---
-	ui_label :: proc(label: cstring) -> ui_sig ---
-	ui_label_str8 :: proc(label: str8) -> ui_sig ---
-	ui_button :: proc(label: cstring) -> ui_sig ---
-	ui_checkbox :: proc(name: cstring, checked: ^bool) -> ui_sig ---
+	ui_style_rule_begin :: proc(pattern: str8) ---
+	ui_style_rule_end :: proc() ---
+	ui_style_set_i32 :: proc(attr: ui_attribute, i: i32) ---
+	ui_style_set_f32 :: proc(attr: ui_attribute, f: f32) ---
+	ui_style_set_color :: proc(attr: ui_attribute, _color: color) ---
+	ui_style_set_font :: proc(attr: ui_attribute, font: font) ---
+	ui_style_set_size :: proc(attr: ui_attribute, size: ui_size) ---
+	ui_style_set_var_str8 :: proc(attr: ui_attribute, var: str8) ---
+	ui_style_set_var :: proc(attr: ui_attribute, var: cstring) ---
+	ui_var_default_i32_str8 :: proc(name: str8, i: i32) ---
+	ui_var_default_f32_str8 :: proc(name: str8, f: f32) ---
+	ui_var_default_size_str8 :: proc(name: str8, size: ui_size) ---
+	ui_var_default_color_str8 :: proc(name: str8, _color: color) ---
+	ui_var_default_font_str8 :: proc(name: str8, font: font) ---
+	ui_var_default_str8 :: proc(name: str8, src: str8) ---
+	ui_var_default_i32 :: proc(name: cstring, i: i32) ---
+	ui_var_default_f32 :: proc(name: cstring, f: f32) ---
+	ui_var_default_size :: proc(name: cstring, size: ui_size) ---
+	ui_var_default_color :: proc(name: cstring, _color: color) ---
+	ui_var_default_font :: proc(name: cstring, font: font) ---
+	ui_var_default :: proc(name: cstring, src: cstring) ---
+	ui_var_set_i32_str8 :: proc(name: str8, i: i32) ---
+	ui_var_set_f32_str8 :: proc(name: str8, f: f32) ---
+	ui_var_set_size_str8 :: proc(name: str8, size: ui_size) ---
+	ui_var_set_color_str8 :: proc(name: str8, _color: color) ---
+	ui_var_set_font_str8 :: proc(name: str8, font: font) ---
+	ui_var_set_str8 :: proc(name: str8, src: str8) ---
+	ui_var_set_i32 :: proc(name: cstring, i: i32) ---
+	ui_var_set_f32 :: proc(name: cstring, f: f32) ---
+	ui_var_set_size :: proc(name: cstring, size: ui_size) ---
+	ui_var_set_color :: proc(name: cstring, _color: color) ---
+	ui_var_set_font :: proc(name: cstring, font: font) ---
+	ui_var_set :: proc(name: cstring, src: cstring) ---
+	ui_var_get_i32_str8 :: proc(name: str8) -> i32 ---
+	ui_var_get_f32_str8 :: proc(name: str8) -> f32 ---
+	ui_var_get_size_str8 :: proc(name: str8) -> ui_size ---
+	ui_var_get_color_str8 :: proc(name: str8) -> color ---
+	ui_var_get_font_str8 :: proc(name: str8) -> font ---
+	ui_var_get_i32 :: proc(name: cstring) -> i32 ---
+	ui_var_get_f32 :: proc(name: cstring) -> f32 ---
+	ui_var_get_size :: proc(name: cstring) -> ui_size ---
+	ui_var_get_color :: proc(name: cstring) -> color ---
+	ui_var_get_font :: proc(name: cstring) -> font ---
+	ui_theme_dark :: proc() ---
+	ui_theme_light :: proc() ---
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Graphical User Interface Widgets.
+////////////////////////////////////////////////////////////////////////////////
+
+ui_text_box_result :: struct {
+	changed: bool,
+	accepted: bool,
+	text: str8,
+	box: ^ui_box,
+}
+
+ui_edit_move :: enum u32 {
+	NONE = 0,
+	CHAR = 1,
+	WORD = 2,
+	LINE = 3,
+}
+
+ui_text_box_info :: struct {
+	text: str8,
+	defaultText: str8,
+	cursor: i32,
+	mark: i32,
+	selectionMode: ui_edit_move,
+	wordSelectionInitialCursor: i32,
+	wordSelectionInitialMark: i32,
+	firstDisplayedChar: i32,
+	cursorBlinkStart: f64,
+}
+
+ui_select_popup_info :: struct {
+	changed: bool,
+	selectedIndex: i32,
+	optionCount: i32 `fmt:"-"`,
+	options: [^]str8 `fmt:"s,optionCount"`,
+	placeholder: str8,
+}
+
+ui_radio_group_info :: struct {
+	changed: bool,
+	selectedIndex: i32,
+	optionCount: i32 `fmt:"-"`,
+	options: [^]str8 `fmt:"s,optionCount"`,
+}
+
+@(default_calling_convention="c", link_prefix="oc_")
+foreign {
+	ui_label :: proc(key: cstring, label: cstring) -> ui_sig ---
+	ui_label_str8 :: proc(key: str8, label: str8) -> ui_sig ---
+	ui_button :: proc(key: cstring, text: cstring) -> ui_sig ---
+	ui_button_str8 :: proc(key: str8, text: str8) -> ui_sig ---
+	ui_checkbox :: proc(key: cstring, checked: ^bool) -> ui_sig ---
+	ui_checkbox_str8 :: proc(key: str8, checked: ^bool) -> ui_sig ---
 	ui_slider :: proc(name: cstring, value: ^f32) -> ^ui_box ---
-	ui_scrollbar :: proc(name: cstring, thumbRatio: f32, scrollValue: ^f32) -> ^ui_box ---
-	ui_tooltip :: proc(label: cstring) ---
-	ui_panel_begin :: proc(name: cstring, flags: ui_flags) ---
-	ui_panel_end :: proc() ---
-	ui_menu_bar_begin :: proc(name: cstring) ---
+	ui_slider_str8 :: proc(name: str8, value: ^f32) -> ^ui_box ---
+	ui_tooltip :: proc(key: cstring, text: cstring) ---
+	ui_tooltip_str8 :: proc(key: str8, text: str8) ---
+	ui_menu_bar_begin :: proc(key: cstring) ---
+	ui_menu_bar_begin_str8 :: proc(key: str8) ---
 	ui_menu_bar_end :: proc() ---
-	ui_menu_begin :: proc(label: cstring) ---
+	ui_menu_begin :: proc(key: cstring, name: cstring) ---
+	ui_menu_begin_str8 :: proc(key: str8, name: str8) ---
 	ui_menu_end :: proc() ---
-	ui_menu_button :: proc(label: cstring) -> ui_sig ---
-	ui_text_box :: proc(name: cstring, arena: ^arena, text: str8) -> ui_text_box_result ---
-	ui_select_popup :: proc(name: cstring, info: ^ui_select_popup_info) -> ui_select_popup_info ---
-	ui_radio_group :: proc(name: cstring, info: ^ui_radio_group_info) -> ui_radio_group_info ---
+	ui_menu_button :: proc(key: cstring, text: cstring) -> ui_sig ---
+	ui_menu_button_str8 :: proc(key: str8, text: str8) -> ui_sig ---
+	ui_text_box :: proc(key: cstring, arena: ^arena, info: ^ui_text_box_info) -> ui_text_box_result ---
+	ui_text_box_str8 :: proc(key: str8, arena: ^arena, info: ^ui_text_box_info) -> ui_text_box_result ---
+	ui_select_popup :: proc(key: cstring, info: ^ui_select_popup_info) -> ui_select_popup_info ---
+	ui_select_popup_str8 :: proc(key: str8, info: ^ui_select_popup_info) -> ui_select_popup_info ---
+	ui_radio_group :: proc(key: cstring, info: ^ui_radio_group_info) -> ui_radio_group_info ---
+	ui_radio_group_str8 :: proc(key: str8, info: ^ui_radio_group_info) -> ui_radio_group_info ---
 }
 
