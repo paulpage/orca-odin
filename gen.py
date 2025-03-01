@@ -206,6 +206,9 @@ def get_enum_sizing(obj):
 
 # since prefixes dont always match the enum name, the table is easier
 enum_prefixes_specific = {
+    "OC_UI_OVERFLOW_",
+    "OC_UI_MASK_",
+    "OC_UI_DRAW_MASK_",
     "OC_LOG_LEVEL_",
     "OC_EVENT_",
     "OC_KEY_",
@@ -230,6 +233,14 @@ enum_prefixes_specific = {
     "OC_UI_FLAG_",
     "OC_UI_FLAG_",
     "OC_UI_EDIT_MOVE_",
+    "OC_UTF8_",
+}
+
+enum_prefixes_fully = {
+    "OC_UI_OVERFLOW_X",
+    "OC_UI_OVERFLOW_Y",
+    "OC_UI_ALIGN_X",
+    "OC_UI_ALIGN_Y",
 }
 
 # since the hashset above is unsorted these should be checked last
@@ -241,6 +252,11 @@ enum_prefixes_broad = {
 
 # fixup enum names based on prefixes
 def simplify_enum_name(name):
+    full_base = "OC_UI_"
+    for prefix in enum_prefixes_fully:
+        if name.startswith(prefix):
+            return name[len(full_base):]
+
     for prefix in enum_prefixes_specific:
         if name.startswith(prefix):
             return name[len(prefix):]
@@ -394,7 +410,7 @@ def gen_union_fields(obj, file, indent):
 
         # generate inner structs within a union
         if field_kind == "struct":
-            gen_struct(field["type"], file, field_name, indent)
+            gen_struct(field["type"], file, field_name, indent, True)
 
             # always comma separate
             file.write(",\n")
@@ -446,26 +462,21 @@ def gen_struct_fields(obj, file, indent):
             file.write(",\n")
 
 def gen_structs_manually(file, name):
-    if name == "ui_input_text":
-        file.write("""ui_input_text :: struct {
-\tcount: u8 `fmt:"-"`,
-\tcodePoints: [64]utf32 `fmt:"s,count"`,
-}""")
-        return True
-
     if name == "ui_layout":
         file.write("""ui_layout :: struct {
 \taxis: ui_axis,
 \tspacing: f32,
 \tmargin: [2]f32,
 \talign: ui_layout_align,
+\toverflow: [2]ui_overflow,
+\tconstrain: [2]bool,
 }""")
         return True
 
     return False
 
 # generate an odin struct with its fields
-def gen_struct(obj, file, name, indent):
+def gen_struct(obj, file, name, indent, parent_raw_union):
     indent_str = indent_string(indent)
 
     # just do this one manually
@@ -487,7 +498,13 @@ def gen_struct(obj, file, name, indent):
             return
 
     seperator = " ::" if indent == 0 else ":"
-    file.write(f"{indent_str}{name}{seperator} struct {{\n")
+    
+    # insert USING for empty named struct name
+    prefix = ""
+    if parent_raw_union:
+        prefix = "using "
+
+    file.write(f"{indent_str}{prefix}{name}{seperator} struct {{\n")
     gen_struct_fields(obj, file, indent + 1)
     file.write(f"{indent_str}}}")
 
@@ -543,7 +560,7 @@ def gen_typename_object(obj, file, indent):
     kind = variable_type["kind"]
 
     if kind == "struct":
-        gen_struct(variable_type, file, name, indent)
+        gen_struct(variable_type, file, name, indent, False)
         
         # space out structs
         file.write("\n\n")
@@ -766,101 +783,15 @@ file_read_slice :: proc(file: file, slice: []char) -> u64 {
 }
 """)
 
-''' Converts the C style mask to odin bit_set manually
-ui_style_mask :: u64
-
-STYLE_NONE :: 0
-STYLE_SIZE_WIDTH :: 2
-STYLE_SIZE_HEIGHT :: 4
-STYLE_LAYOUT_AXIS :: 8
-STYLE_LAYOUT_ALIGN_X :: 16
-STYLE_LAYOUT_ALIGN_Y :: 32
-STYLE_LAYOUT_SPACING :: 64
-STYLE_LAYOUT_MARGIN_X :: 128
-STYLE_LAYOUT_MARGIN_Y :: 256
-STYLE_FLOAT_X :: 512
-STYLE_FLOAT_Y :: 1024
-STYLE_COLOR :: 2048
-STYLE_BG_COLOR :: 4096
-STYLE_BORDER_COLOR :: 8192
-STYLE_BORDER_SIZE :: 16384
-STYLE_ROUNDNESS :: 32768
-STYLE_FONT :: 65536
-STYLE_FONT_SIZE :: 131072
-STYLE_ANIMATION_TIME :: 262144
-STYLE_ANIMATION_MASK :: 524288
-STYLE_SIZE :: 6
-STYLE_LAYOUT_MARGINS :: 384
-STYLE_LAYOUT :: 504
-STYLE_FLOAT :: 1536
-STYLE_MASK_INHERITED :: 985088
-'''
-def write_style_bitset(file):
-    file.write("""
-style_enum :: enum {
-\tSIZE_WIDTH = 1,
-\tSIZE_HEIGHT,
-\t
-\tLAYOUT_AXIS,
-\tLAYOUT_ALIGN_X,
-\tLAYOUT_ALIGN_Y,
-\tLAYOUT_SPACING,
-\tLAYOUT_MARGIN_X,
-\tLAYOUT_MARGIN_Y,
-\t
-\tFLOAT_X,
-\tFLOAT_Y,
-
-\tCOLOR,
-\tBG_COLOR,
-\tBORDER_COLOR,
-\tBORDER_SIZE,
-\tROUNDNESS,
-
-\tFONT,
-\tFONT_SIZE,
-
-\tANIMATION_TIME,
-\tANIMATION_MASK,
-}
-
-ui_style_mask :: bit_set[style_enum; u64]
-
-// Masks like the C version that can be used as common combinations
-SIZE :: ui_style_mask { .SIZE_WIDTH, .SIZE_HEIGHT }
-LAYOUT_MARGINS :: ui_style_mask { .LAYOUT_MARGIN_X, .LAYOUT_MARGIN_Y }
-LAYOUT :: ui_style_mask { .LAYOUT_AXIS, .LAYOUT_ALIGN_X, .LAYOUT_ALIGN_Y, .LAYOUT_SPACING, .LAYOUT_MARGIN_X, .LAYOUT_MARGIN_Y }
-FLOAT :: ui_style_mask { .FLOAT_X, .FLOAT_Y }
-MASK_INHERITED :: ui_style_mask { .COLOR, .FONT, .FONT_SIZE, .ANIMATION_TIME, .ANIMATION_MASK }
-
-""")
-
-def write_system_error_definition(file):
-    file.write("""
-SYS_MAX_ERROR :: 1024
-
-sys_err_def :: struct {
-\tmsg: [SYS_MAX_ERROR]u8 `fmt:"s,0"`,
-\tcode: i32,
-}
-
-@(link_prefix="oc_")
-foreign {
-\tsys_error: sys_err_def
-}
-""")
-
 if __name__ == "__main__":
     with open("api.json", "r") as api_file:
         api_desc = json.load(api_file)
 
     with open("orca.odin", "w") as odin_file:
         write_package(odin_file)
-        write_system_error_definition(odin_file)
         write_unicode_constants(odin_file)
         write_clock(odin_file)
         write_helpers(odin_file)
-        write_style_bitset(odin_file)
         temp_block = io.StringIO("")
         
         for module in api_desc:
