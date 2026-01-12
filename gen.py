@@ -612,7 +612,11 @@ def iterate_object(obj, file, shared_block):
 
 # write package info and types
 def write_package(file):
-    file.write("""package orca
+    file.write("""// Bindings for the Orca platform
+//
+// See: [[ https://orca-app.dev ]]
+
+package orca
 
 import "core:c"
 

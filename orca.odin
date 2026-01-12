@@ -1,3 +1,7 @@
+// Bindings for the Orca platform
+//
+// See: [[ https://orca-app.dev ]]
+
 package orca
 
 import "core:c"
