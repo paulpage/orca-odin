@@ -211,11 +211,11 @@ foreign {
 
 clock_kind :: enum u32 {
 	// A clock incrementing monotonically.
-	OC_CLOCK_MONOTONIC = 0,
+	MONOTONIC = 0,
 	// A clock incrementing monotonically during uptime.
-	OC_CLOCK_UPTIME = 1,
+	UPTIME = 1,
 	// A clock driven by the platform time.
-	OC_CLOCK_DATE = 2,
+	DATE = 2,
 }
 
 @(default_calling_convention="c", link_prefix="oc_")

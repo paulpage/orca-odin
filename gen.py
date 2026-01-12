@@ -234,6 +234,7 @@ enum_prefixes_specific = {
     "OC_UI_FLAG_",
     "OC_UI_EDIT_MOVE_",
     "OC_UTF8_",
+    "OC_CLOCK_",
 }
 
 enum_prefixes_fully = {
