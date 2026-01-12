@@ -1070,7 +1070,7 @@ file :: distinct u64
 // Flags for the `oc_file_open()` function.
 file_open_flag :: enum u16 {
 	// Open the file in 'append' mode. All writes append data at the end of the file.
-	APPEND = 1,
+	APPEND = 0,
 	// Truncate the file to 0 bytes when opening.
 	TRUNCATE,
 	// Create the file if it does not exist.
@@ -1087,7 +1087,7 @@ file_open_flags :: bit_set[file_open_flag; u16]
 // This enum describes the access permissions of a file handle.
 file_access_flag :: enum u16 {
 	// The file handle can be used for reading from the file.
-	READ = 1,
+	READ = 0,
 	// The file handle can be used for writing to the file.
 	WRITE,
 }
@@ -1239,7 +1239,7 @@ file_type :: enum u32 {
 
 // A type describing file permissions.
 file_perm_flag :: enum u16 {
-	OTHER_EXEC = 1,
+	OTHER_EXEC = 0,
 	OTHER_WRITE,
 	OTHER_READ,
 	GROUP_EXEC,
@@ -1919,6 +1919,8 @@ ui_style :: struct {
 	animationMask: ui_attribute_mask,
 	clickThrough: bool,
 }
+
+ui_box :: struct {}
 
 ui_context :: struct {}
 

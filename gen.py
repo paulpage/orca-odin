@@ -283,11 +283,9 @@ def check_enum_name_decimal(name):
 enum_bit_sets_list = {
     "keymod_flags": ["keymod_flag", "keymod_flags", "u32", 0],
     "file_dialog_flags": ["file_dialog_flag", "file_dialog_flags", "u32", 0],
-    "file_open_flags_enum": ["file_open_flag", "file_open_flags", "u16", 1],
-    "file_access_enum": ["file_access_flag", "file_access", "u16", 1],
-    "file_perm_enum": ["file_perm_flag", "file_perm", "u16", 1],
-    "ui_status_enum": ["ui_status_flag", "ui_status", "u8", 1],
-    "ui_flags": ["ui_flag", "ui_flags", "u32", 0],
+    "file_open_flags_enum": ["file_open_flag", "file_open_flags", "u16", 0],
+    "file_access_enum": ["file_access_flag", "file_access", "u16", 0],
+    "file_perm_enum": ["file_perm_flag", "file_perm", "u16", 0],
 }
 
 def gen_enum_bit_set_combo(obj, file, name, indent):
