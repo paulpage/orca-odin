@@ -623,9 +623,6 @@ import "core:c"
 char :: c.char
 
 // currently missing in the api.json
-window :: distinct u64
-    
-// currently missing in the api.json
 pool :: struct {
 \tarena: arena,
 \tfreeList: list,
@@ -761,20 +758,6 @@ UNICODE_SUPPLEMENTARY_PRIVATE_USE_AREA_A :: unicode_range { 0xf0000, 65533 }
 UNICODE_SUPPLEMENTARY_PRIVATE_USE_AREA_B  :: unicode_range { 0x100000, 65533 }
 """)
 
-def write_clock(file):
-    file.write("""
-clock_kind :: enum c.int {
-\tMONOTONIC,
-\tUPTIME,
-\tDATE,
-}
-
-@(default_calling_convention="c", link_prefix="oc_")
-foreign {
-\tclock_time :: proc(clock: clock_kind) -> f64 ---
-}
-""")
-
 def write_helpers(file):
     file.write("""
 file_write_slice :: proc(file: file, slice: []char) -> u64 {
@@ -793,7 +776,6 @@ if __name__ == "__main__":
     with open("orca.odin", "w") as odin_file:
         write_package(odin_file)
         write_unicode_constants(odin_file)
-        write_clock(odin_file)
         write_helpers(odin_file)
         temp_block = io.StringIO("")
         
